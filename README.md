@@ -27,7 +27,7 @@ Drop these fields into the visual:
 | Employee name | no | Falls back to the ID |
 | Manager name | no | Used to name managers that have no row of their own |
 | Card details | no | Any number of fields, one line each |
-| Image URL | no | `https://` link to a photo; without it (or with an empty value) initials are shown |
+| Image URL | no | `https://` link to a photo, or the image itself as base64 (with or without the `data:image/...;base64,` prefix; PNG/JPEG/GIF/WebP). Empty = initials are shown. Power BI truncates text longer than 32,766 characters, so keep base64 thumbnails small (about 80x80 px, under ~20 KB) |
 | Card color | no | A CSS color such as `#64C8C8`; empty = default card color |
 
 A sample is in [`sample/sample-data.csv`](sample/sample-data.csv). Preparing the source table is covered in [`docs/data-preparation.md`](docs/data-preparation.md).

@@ -56,8 +56,30 @@ function readableText(hex: string): string | null {
     return luminance > 0.6 ? "#1F2933" : "#FFFFFF";
 }
 
-function isWebUrl(value: string): boolean {
-    return /^https?:\/\//i.test(value);
+/**
+ * Turns the Image URL value into something an <image> can load, or "" if it is not an image.
+ * Accepts https links, data URIs, and raw base64 (PNG/JPEG/GIF/WebP, detected by their signature).
+ */
+function imageSource(value: string): string {
+    if (/^https?:\/\//i.test(value) || /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) {
+        return value;
+    }
+    const compact = value.replace(/\s+/g, "");
+    if (compact.length > 40 && /^[A-Za-z0-9+/]+=*$/.test(compact)) {
+        if (compact.startsWith("/9j/")) {
+            return `data:image/jpeg;base64,${compact}`;
+        }
+        if (compact.startsWith("iVBORw0KGgo")) {
+            return `data:image/png;base64,${compact}`;
+        }
+        if (compact.startsWith("R0lGOD")) {
+            return `data:image/gif;base64,${compact}`;
+        }
+        if (compact.startsWith("UklGR")) {
+            return `data:image/webp;base64,${compact}`;
+        }
+    }
+    return "";
 }
 
 export class Visual implements IVisual {
@@ -594,10 +616,11 @@ export class Visual implements IVisual {
                       .attr("rx", radius);
         };
 
-        if (isWebUrl(d.image)) {
+        const source = imageSource(d.image);
+        if (source) {
             drawShape(card.append("clipPath").attr("id", clipId));
             card.append("image")
-                .attr("href", d.image)
+                .attr("href", source)
                 .attr("x", cx - half)
                 .attr("y", cy - half)
                 .attr("width", size)
