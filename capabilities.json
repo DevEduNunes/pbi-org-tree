@@ -1,0 +1,84 @@
+{
+  "dataRoles": [
+    { "name": "employeeId", "displayName": "Employee ID", "kind": "Grouping" },
+    { "name": "employeeName", "displayName": "Employee name", "kind": "Grouping" },
+    { "name": "managerId", "displayName": "Manager ID", "kind": "Grouping" },
+    { "name": "managerName", "displayName": "Manager name", "kind": "Grouping" },
+    { "name": "details", "displayName": "Card details (optional)", "kind": "Grouping" },
+    { "name": "flag", "displayName": "Flag column (optional)", "kind": "Grouping" }
+  ],
+  "dataViewMappings": [
+    {
+      "table": {
+        "rows": {
+          "select": [
+            { "for": { "in": "employeeId" } },
+            { "for": { "in": "employeeName" } },
+            { "for": { "in": "managerId" } },
+            { "for": { "in": "managerName" } },
+            { "for": { "in": "details" } },
+            { "for": { "in": "flag" } }
+          ],
+          "dataReductionAlgorithm": { "window": { "count": 30000 } }
+        }
+      }
+    }
+  ],
+  "objects": {
+    "layout": {
+      "displayName": "Layout",
+      "properties": {
+        "initialDepth": {
+          "displayName": "Initially expanded levels",
+          "type": { "numeric": true }
+        },
+        "cardWidth": {
+          "displayName": "Card width",
+          "type": { "numeric": true }
+        },
+        "cardHeight": {
+          "displayName": "Card height",
+          "type": { "numeric": true }
+        },
+        "horizontalGap": {
+          "displayName": "Horizontal gap",
+          "type": { "numeric": true }
+        },
+        "verticalGap": {
+          "displayName": "Vertical gap",
+          "type": { "numeric": true }
+        }
+      }
+    },
+    "colors": {
+      "displayName": "Colors",
+      "properties": {
+        "cardFill": {
+          "displayName": "Card fill",
+          "type": { "fill": { "solid": { "color": true } } }
+        },
+        "cardBorder": {
+          "displayName": "Card border",
+          "type": { "fill": { "solid": { "color": true } } }
+        },
+        "textColor": {
+          "displayName": "Text",
+          "type": { "fill": { "solid": { "color": true } } }
+        },
+        "linkColor": {
+          "displayName": "Connector lines",
+          "type": { "fill": { "solid": { "color": true } } }
+        },
+        "flagValue": {
+          "displayName": "Flag value",
+          "type": { "text": true }
+        },
+        "flagFill": {
+          "displayName": "Flagged card fill",
+          "type": { "fill": { "solid": { "color": true } } }
+        }
+      }
+    }
+  },
+  "privileges": []
+}

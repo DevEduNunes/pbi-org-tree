@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.tmp/
+.api/
+package-lock.json.bak
+*.pbiviz
+.vscode/
+.DS_Store

@@ -1,0 +1,30 @@
+name: Build visual
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Package .pbiviz
+        run: npm run package
+
+      - name: Upload .pbiviz
+        uses: actions/upload-artifact@v4
+        with:
+          name: org-tree-pbiviz
+          path: dist/*.pbiviz
+          if-no-files-found: error

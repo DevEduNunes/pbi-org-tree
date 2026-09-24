@@ -1,0 +1,23 @@
+{
+  "visual": {
+    "name": "orgTree",
+    "displayName": "Org Tree",
+    "guid": "orgTreeE7B1C4A29D3F4A6B8C5D0F1E2A3B4C5D",
+    "visualClassName": "Visual",
+    "version": "1.0.0.0",
+    "description": "Free and open-source vertical organization chart for Power BI, with expand/collapse, search, zoom and cross-filtering. Built from a simple employee/manager table.",
+    "supportUrl": "https://github.com/DevEduNunes/pbi-org-tree/issues",
+    "gitHubUrl": "https://github.com/DevEduNunes/pbi-org-tree"
+  },
+  "apiVersion": "5.11.0",
+  "author": {
+    "name": "DevEduNunes",
+    "email": ""
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": [],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json"
+}

@@ -1,0 +1,11 @@
+EmployeeId,EmployeeName,ManagerId,ManagerName,Title,Department,Status
+1001,Alice Prado,,,CEO,Executive,
+1002,Bruno Lima,1001,Alice Prado,VP Operations,Operations,
+1003,Carla Souza,1001,Alice Prado,VP Finance,Finance,
+1004,Diego Rocha,1002,Bruno Lima,Operations Manager,Operations,
+1005,Elisa Nunes,1002,Bruno Lima,Logistics Manager,Operations,
+1006,Fabio Alves,1003,Carla Souza,Controller,Finance,Review
+1007,Gabi Costa,1004,Diego Rocha,Analyst,Operations,
+1008,Hugo Ramos,1004,Diego Rocha,Analyst,Operations,Review
+1009,Iris Duarte,1005,Elisa Nunes,Coordinator,Operations,
+1010,Joao Melo,1006,Fabio Alves,Accountant,Finance,

@@ -1,0 +1,54 @@
+.org-tree {
+  position: relative;
+  overflow: hidden;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+  svg {
+    display: block;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .toolbar {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 2;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+
+    input,
+    button {
+      font: inherit;
+      font-size: 12px;
+      height: 24px;
+      border: 1px solid #c8c8c8;
+      border-radius: 4px;
+      background: #ffffff;
+      color: #333333;
+    }
+
+    input {
+      width: 160px;
+      padding: 0 8px;
+    }
+
+    button {
+      padding: 0 8px;
+      cursor: pointer;
+
+      &:hover {
+        background: #f0f0f0;
+      }
+    }
+  }
+
+  .empty {
+    display: none;
+    padding: 48px 16px 16px;
+    text-align: center;
+    color: #666666;
+    font-size: 13px;
+  }
+}
