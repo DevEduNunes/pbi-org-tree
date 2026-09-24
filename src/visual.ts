@@ -292,8 +292,16 @@ export class Visual implements IVisual {
 
         bar.appendChild(this.searchInput);
         bar.appendChild(
-            button("Expand all", "Expand every branch (while searching: everyone below the matches)", () => {
+            button("Expand all", "Expand every branch (while searching: every card in the filter)", () => {
                 if (this.focusIds) {
+                    // Every card in the reporting line shows its direct reports...
+                    for (const id of this.focusIds) {
+                        const node = this.nodes.get(id) ?? (this.root && this.root.id === id ? this.root : undefined);
+                        if (node && node.children.length > 0) {
+                            this.searchExpanded.add(node.id);
+                        }
+                    }
+                    // ...and whoever was searched also shows their whole team.
                     for (const id of this.matchIds) {
                         const match = this.nodes.get(id);
                         if (match) {

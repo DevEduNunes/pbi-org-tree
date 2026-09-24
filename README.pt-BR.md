@@ -73,7 +73,7 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 - Caso contrário, nomes e IDs que *contêm* o texto são encontrados (até 100 pessoas).
 - O gráfico passa a mostrar só a **linha hierárquica**: o(s) resultado(s) e todos os gestores acima, até o topo, com o resultado destacado.
 - Use o botão **+N** em qualquer card dessa linha para trazer os outros subordinados diretos dele.
-- Durante a busca, **Expand all** mostra todos abaixo do(s) resultado(s) — subordinados diretos e indiretos — e mantém o filtro; **Collapse all** volta a mostrar só a linha hierárquica.
+- Durante a busca, **Expand all** mantém o filtro e abre todos os cards dele: cada gestor da linha mostra seus subordinados diretos, e a pessoa pesquisada também mostra a equipe inteira. **Collapse all** volta a mostrar só a linha hierárquica.
 - Limpe a caixa de busca para voltar à árvore completa.
 
 ## 📦 Dados de exemplo
