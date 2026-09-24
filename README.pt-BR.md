@@ -36,7 +36,7 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 
 ## 🚀 Início rápido
 
-1. **Baixe** o `orgTree.pbiviz` mais recente na página de [Releases](https://github.com/DevEduNunes/pbi-org-tree/releases).
+1. **Baixe** o `OrganogramaByDevEduNunes.pbiviz` mais recente na página de [Releases](https://github.com/DevEduNunes/pbi-org-tree/releases).
 2. No **Power BI Desktop**: painel *Visualizações* → **⋯** → **Importar um visual de um arquivo** → escolha o arquivo.
 3. Adicione o visual ao relatório e arraste suas colunas para os campos (abaixo).
 4. Abra **Formatar visual** para personalizar.

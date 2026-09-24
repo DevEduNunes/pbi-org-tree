@@ -29,4 +29,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" dist/*.pbiviz --title "$TAG" --generate-notes
+        run: |
+          # Re-pushing a tag replaces its release instead of failing.
+          gh release delete "$TAG" --yes || true
+          gh release create "$TAG" dist/*.pbiviz --title "$TAG" --generate-notes

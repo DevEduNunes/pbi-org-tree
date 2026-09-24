@@ -36,7 +36,7 @@ No license fees, no per-user pricing, no data leaving your report.
 
 ## 🚀 Quick start
 
-1. **Download** the latest `orgTree.pbiviz` from the [Releases](https://github.com/DevEduNunes/pbi-org-tree/releases) page.
+1. **Download** the latest `OrganogramaByDevEduNunes.pbiviz` from the [Releases](https://github.com/DevEduNunes/pbi-org-tree/releases) page.
 2. In **Power BI Desktop**: *Visualizations* pane → **⋯** → **Import a visual from a file** → choose the file.
 3. Add the visual to your report and drop your columns into the fields (below).
 4. Open **Format visual** to style it.
