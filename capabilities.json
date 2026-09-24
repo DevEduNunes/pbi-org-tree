@@ -6,10 +6,7 @@
     { "name": "managerName", "displayName": "Manager name", "kind": "Grouping" },
     { "name": "details", "displayName": "Card details (optional)", "kind": "Grouping" },
     { "name": "image", "displayName": "Image URL (optional)", "kind": "Grouping" },
-    { "name": "color", "displayName": "Card color, e.g. #64C8C8 (optional)", "kind": "Grouping" },
-    { "name": "tooltip", "displayName": "Tooltip text (optional)", "kind": "Grouping" },
-    { "name": "link", "displayName": "Link URL (optional)", "kind": "Grouping" },
-    { "name": "flag", "displayName": "Flag column (optional)", "kind": "Grouping" }
+    { "name": "color", "displayName": "Card color, e.g. #64C8C8 (optional)", "kind": "Grouping" }
   ],
   "dataViewMappings": [
     {
@@ -22,10 +19,7 @@
             { "for": { "in": "managerName" } },
             { "for": { "in": "details" } },
             { "for": { "in": "image" } },
-            { "for": { "in": "color" } },
-            { "for": { "in": "tooltip" } },
-            { "for": { "in": "link" } },
-            { "for": { "in": "flag" } }
+            { "for": { "in": "color" } }
           ],
           "dataReductionAlgorithm": { "window": { "count": 30000 } }
         }
@@ -88,9 +82,7 @@
       "properties": {
         "cardFill": { "displayName": "Card fill", "type": { "fill": { "solid": { "color": true } } } },
         "cardBorder": { "displayName": "Card border", "type": { "fill": { "solid": { "color": true } } } },
-        "textColor": { "displayName": "Text", "type": { "fill": { "solid": { "color": true } } } },
-        "flagValue": { "displayName": "Flag value", "type": { "text": true } },
-        "flagFill": { "displayName": "Flagged card fill", "type": { "fill": { "solid": { "color": true } } } }
+        "textColor": { "displayName": "Text", "type": { "fill": { "solid": { "color": true } } } }
       }
     },
     "connectors": {

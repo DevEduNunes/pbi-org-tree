@@ -45,4 +45,11 @@ FROM employees
 ## Optional columns
 
 - **Card details**: add `Title`, `Department`, `Site`… as extra fields; each becomes one line on the card.
-- **Flag column**: any text column (for example a validation status). Set the *Flag value* in *Format → Colors* to the text that should highlight the card.
+- **Card color**: any column with a CSS color. To highlight a rule, build the color in the model, for example in Power Query:
+
+  ```m
+  if [ValidationStatus] = "Remove" then "#FDE2E2" else ""
+  ```
+
+  Empty values keep the default card color (*Format → Colors*).
+- **Image URL**: `https://` links to photos; people without one get initials.

@@ -157,11 +157,8 @@ export class Visual implements IVisual {
         const nameCol = idx("employeeName");
         const parentCol = idx("managerId");
         const parentNameCol = idx("managerName");
-        const flagCol = idx("flag");
         const imageCol = idx("image");
         const colorCol = idx("color");
-        const tooltipCol = idx("tooltip");
-        const linkCol = idx("link");
         const detailCols: number[] = [];
         table.columns.forEach((c, i) => {
             if (c.roles && c.roles["details"]) {
@@ -183,11 +180,8 @@ export class Visual implements IVisual {
             parentId: text(row[parentCol]),
             parentName: cell(row, parentNameCol),
             details: detailCols.map((c) => text(row[c])).filter((v) => v !== ""),
-            flag: cell(row, flagCol),
             image: cell(row, imageCol),
             color: cell(row, colorCol),
-            tooltip: cell(row, tooltipCol),
-            link: cell(row, linkCol),
         }));
 
         const result = buildForest(rows);
@@ -420,7 +414,6 @@ export class Visual implements IVisual {
         const hasAvatar = this.hasImageRole && s.avatarShape !== "none";
         const avatarLeft = hasAvatar && s.avatarPosition === "left";
         const avatarTop = hasAvatar && s.avatarPosition === "top";
-        const flagValue = s.flagValue.toLowerCase();
 
         const textX = avatarLeft ? 8 + s.avatarSize + 10 : avatarTop ? s.cardWidth / 2 : 10;
         const anchor = avatarTop ? "middle" : "start";
@@ -440,10 +433,9 @@ export class Visual implements IVisual {
             const sid = this.selectionIds.get(d.id);
             const isSelected = !!sid && selected.some((x) => x.equals(sid));
             const isMatch = this.matches(d);
-            const isFlagged = flagValue !== "" && d.flag.toLowerCase() === flagValue;
             const customFill = isValidColor(d.color) ? d.color : "";
-            const fill = isFlagged ? s.flagFill : customFill || s.cardFill;
-            const ink = (!isFlagged && customFill && readableText(customFill)) || s.textColor;
+            const fill = customFill || s.cardFill;
+            const ink = (customFill && readableText(customFill)) || s.textColor;
 
             const card = layer
                 .append("g")
@@ -451,7 +443,7 @@ export class Visual implements IVisual {
                 .style("cursor", sid ? "pointer" : "default")
                 .attr("opacity", hasSelection && !isSelected ? 0.45 : 1);
 
-            card.append("title").text([d.tooltip || d.name, `ID: ${d.id}`, ...d.details].join("\n"));
+            card.append("title").text([d.name, `ID: ${d.id}`, ...d.details].join("\n"));
 
             card.append("rect")
                 .attr("width", s.cardWidth)
@@ -497,23 +489,6 @@ export class Visual implements IVisual {
                     .select(sid, event.ctrlKey || event.metaKey || event.shiftKey)
                     .then(() => this.render());
             });
-
-            if (isWebUrl(d.link)) {
-                const linkIcon = card
-                    .append("text")
-                    .attr("x", s.cardWidth - 8)
-                    .attr("y", 14)
-                    .attr("text-anchor", "end")
-                    .attr("font-size", 12)
-                    .attr("fill", ink)
-                    .style("cursor", "pointer")
-                    .text("↗");
-                linkIcon.append("title").text(d.link);
-                linkIcon.on("click", (event: MouseEvent) => {
-                    event.stopPropagation();
-                    this.host.launchUrl(d.link);
-                });
-            }
 
             if (d.children.length > 0) {
                 this.drawToggle(card, d);

@@ -26,8 +26,6 @@ export interface Settings {
     cardFill: string;
     cardBorder: string;
     textColor: string;
-    flagValue: string;
-    flagFill: string;
     // connectors
     linkColor: string;
     linkWidth: number;
@@ -53,8 +51,6 @@ export const DEFAULT_SETTINGS: Settings = {
     cardFill: "#FFFFFF",
     cardBorder: "#B8C4D0",
     textColor: "#1F2933",
-    flagValue: "",
-    flagFill: "#FDE2E2",
     linkColor: "#9AA5B1",
     linkWidth: 1.5,
     linkShape: "elbow",
@@ -81,11 +77,6 @@ function readBool(o: Objects, obj: string, prop: string, def: boolean): boolean 
 function readColor(o: Objects, obj: string, prop: string, def: string): string {
     const v = raw(o, obj, prop)?.solid?.color;
     return typeof v === "string" && v ? v : def;
-}
-
-function readText(o: Objects, obj: string, prop: string, def: string): string {
-    const v = raw(o, obj, prop);
-    return typeof v === "string" ? v : def;
 }
 
 function readEnum<T extends string>(o: Objects, obj: string, prop: string, allowed: readonly T[], def: T): T {
@@ -117,8 +108,6 @@ export function readSettings(dataView: powerbi.DataView | undefined): Settings {
         cardFill: readColor(o, "colors", "cardFill", d.cardFill),
         cardBorder: readColor(o, "colors", "cardBorder", d.cardBorder),
         textColor: readColor(o, "colors", "textColor", d.textColor),
-        flagValue: readText(o, "colors", "flagValue", d.flagValue).trim(),
-        flagFill: readColor(o, "colors", "flagFill", d.flagFill),
 
         linkColor: readColor(o, "connectors", "color", d.linkColor),
         linkWidth: readNumber(o, "connectors", "width", d.linkWidth, 0.5, 10),
@@ -160,8 +149,6 @@ export function settingsToInstances(objectName: string, s: Settings): powerbi.Vi
                 cardFill: fill(s.cardFill),
                 cardBorder: fill(s.cardBorder),
                 textColor: fill(s.textColor),
-                flagValue: s.flagValue,
-                flagFill: fill(s.flagFill),
             };
             break;
         case "connectors":
