@@ -1,5 +1,7 @@
 # Preparing the data
 
+**English** · [Português](data-preparation.pt-BR.md)
+
 The visual needs one row per employee with four core columns:
 
 | Column | Example |
@@ -13,9 +15,9 @@ The visual needs one row per employee with four core columns:
 
 1. **One row per employee.** Deduplicate on Employee ID. If the source has history (several rows per person), keep only the current one. The visual keeps the first row it sees for a duplicated ID and ignores the rest.
 2. **Same type on both ID columns.** Cast Employee ID and Manager ID to text so `1004` and `1004.0` do not end up as different keys.
-3. **Top of the tree**: leave Manager ID empty (or equal to the employee's own ID). A manager who has no row of their own is still drawn, named from *Manager name*.
-4. **No cycles.** If A reports to B and B reports to A the visual cuts the loop, but the data should be fixed at the source.
-5. **Keep managers in the table** whenever possible: leaders that are also employees should have their own row, so their card can be selected and filtered.
+3. **Top of the tree:** leave Manager ID empty (or equal to the employee's own ID). A manager who has no row of their own is still drawn, named from *Manager name*. If your source uses a code such as `0` for "no manager", give it a name (for example "No manager") or blank it out.
+4. **No loops.** If A reports to B and B reports to A the visual cuts the loop, but the data should be fixed at the source.
+5. **Keep managers in the table** whenever possible: leaders who are also employees should have their own row, so their card can be selected and filter the report.
 
 ## Power Query (M)
 
@@ -52,4 +54,4 @@ FROM employees
   ```
 
   Empty values keep the default card color (*Format → Colors*).
-- **Image URL**: `https://` links to photos; people without one get initials.
+- **Image URL**: `https://` links, or the image as base64 (PNG/JPEG/GIF/WebP, with or without the `data:image/...;base64,` prefix). Keep the text under 32,766 characters (thumbnails of about 80×80 px). People without an image get initials.

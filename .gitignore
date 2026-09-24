@@ -2,7 +2,15 @@ node_modules/
 dist/
 .tmp/
 .api/
-package-lock.json.bak
+webpack.statistics*.html
 *.pbiviz
+*.pbix
+*.pbip
+.env
+.env.*
+*.pem
+*.pfx
+*.key
+*.crt
 .vscode/
 .DS_Store
