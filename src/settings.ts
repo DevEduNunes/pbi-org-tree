@@ -176,5 +176,6 @@ export function settingsToInstances(objectName: string, s: Settings): powerbi.Vi
         default:
             return [];
     }
-    return [{ objectName, selector: undefined, properties }];
+    // A null selector targets the visual as a whole (the type does not allow null, hence the cast).
+    return [{ objectName, selector: null as unknown as powerbi.data.Selector, properties }];
 }

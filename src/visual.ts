@@ -83,7 +83,11 @@ export class Visual implements IVisual {
     private needFit = true;
     private visibleNodes: HierarchyPointNode<OrgNode>[] = [];
 
-    constructor(options: VisualConstructorOptions) {
+    constructor(options?: VisualConstructorOptions) {
+        // The generated visual plugin may call this without options (type-only); Power BI always passes them.
+        if (!options) {
+            throw new Error("Org Tree: missing visual constructor options");
+        }
         this.host = options.host;
         this.selectionManager = this.host.createSelectionManager();
         this.selectionManager.registerOnSelectCallback(() => this.render());
@@ -172,7 +176,7 @@ export class Visual implements IVisual {
 
         const cell = (row: powerbi.DataViewTableRow, col: number): string => (col >= 0 ? text(row[col]) : "");
 
-        const rows: RawRow[] = table.rows.map((row, rowIndex) => ({
+        const rows: RawRow[] = (table.rows ?? []).map((row, rowIndex) => ({
             rowIndex,
             id: text(row[idCol]),
             name: cell(row, nameCol),
