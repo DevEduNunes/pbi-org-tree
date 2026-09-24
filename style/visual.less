@@ -61,6 +61,47 @@
     }
   }
 
+  // Shown only when the host blocks both downloads and the clipboard.
+  .copy-panel {
+    display: none;
+    position: absolute;
+    inset: 12% 8%;
+    z-index: 4;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #c8c8c8;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+
+    .copy-title {
+      font-size: 13px;
+      color: #333333;
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      white-space: pre;
+      border: 1px solid #c8c8c8;
+      border-radius: 4px;
+      padding: 8px;
+    }
+
+    button {
+      align-self: flex-end;
+      height: 28px;
+      padding: 0 12px;
+      border: 1px solid #c8c8c8;
+      border-radius: 4px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+  }
+
   .empty {
     display: none;
     padding: 48px 16px 16px;

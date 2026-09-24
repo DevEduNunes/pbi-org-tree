@@ -27,7 +27,7 @@ No license fees, no per-user pricing, no data leaving your report.
 | 🌳 **Vertical tree** | Top-down chart with rounded, straight or curved connectors |
 | ➕ **Expand / collapse** | Per branch, plus *Expand all*, *Collapse all* and *Fit*; choose how many levels start open |
 | 🔎 **Reporting-line search** | Type an ID or a name and see the person and every manager above them, up to the top |
-| 📤 **Export team** | Search a person and download a CSV with them and **everyone below** them, at every level |
+| 📤 **Export / Copy team** | Search a person and download a CSV — or copy it, ready to paste into Excel — with them and **everyone below** them, at every level |
 | 🖱️ **Zoom & pan** | Mouse wheel and drag; *Fit* re-centers everything |
 | 📐 **Responsive controls** | The toolbar grows with the visual (and with a zoomed-out browser), and the +N / − buttons on the cards grow as you zoom out |
 | 🔗 **Cross-filtering** | Click a card to filter the other visuals (Ctrl/Shift to select several) |
@@ -79,6 +79,7 @@ No license fees, no per-user pricing, no data leaving your report.
 - Use the **+N** button on any card in that line to bring in its other direct reports.
 - While searching, **Expand all** keeps the filter and opens every card in it: each manager in the line shows their direct reports, and the searched person also shows their whole team. **Collapse all** goes back to just the reporting line.
 - **Export team** (enabled while a search is active) saves a CSV with the searched person(s) and **everyone below them, at every level**, whether or not the cards are expanded. Columns: `Level` (0 = the searched person, 1 = direct reports…), then Employee ID, name, Manager ID, manager name and the *Card details* columns. The file is UTF-8 with BOM, so Excel reads accents correctly; the separator is set in *Format visual → Export* (semicolon by default, for Excel in Portuguese).
+- **Copy team** puts the same list on the clipboard (tab-separated), so you can paste it straight into Excel. Use it when **downloads are blocked**: many organizations disable *"Allow downloads from custom visuals"* in the Power BI/Fabric admin portal, and then **Export team** shows a Power BI message saying the admin restricted downloads. If the clipboard is blocked too, a panel opens with the text so you can copy it by hand.
 - Clear the search box to go back to the full tree.
 
 ## 📦 Sample data

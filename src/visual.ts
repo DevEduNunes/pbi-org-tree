@@ -110,6 +110,9 @@ export class Visual implements IVisual {
     private emptyMessage: HTMLDivElement;
     private searchInput!: HTMLInputElement;
     private exportButton!: HTMLButtonElement;
+    private copyButton!: HTMLButtonElement;
+    private copyPanel!: HTMLDivElement;
+    private copyArea!: HTMLTextAreaElement;
     private statusLabel!: HTMLSpanElement;
     private statusTimer: number | undefined;
     private svg: SvgSelection<SVGSVGElement>;
@@ -161,6 +164,9 @@ export class Visual implements IVisual {
         this.emptyText = "Add Employee ID and Manager ID (and, optionally, names) to build the organization chart.";
         this.emptyMessage.textContent = this.emptyText;
         this.container.appendChild(this.emptyMessage);
+
+        this.copyPanel = this.buildCopyPanel();
+        this.container.appendChild(this.copyPanel);
 
         this.svg = select(this.container).append("svg");
         this.canvas = this.svg.append("g");
@@ -408,6 +414,8 @@ export class Visual implements IVisual {
 
         this.exportButton = button("Export team", "", () => this.exportTeam());
         bar.appendChild(this.exportButton);
+        this.copyButton = button("Copy team", "", () => this.copyTeam());
+        bar.appendChild(this.copyButton);
 
         this.statusLabel = document.createElement("span");
         this.statusLabel.className = "status";
@@ -421,9 +429,90 @@ export class Visual implements IVisual {
     private updateExportState(): void {
         const ready = this.matchIds.size > 0;
         this.exportButton.disabled = !ready;
+        this.copyButton.disabled = !ready;
         this.exportButton.title = ready
             ? "Download a CSV with the searched person(s) and everyone below them, at every level"
             : "Search for a person first to export their team";
+        this.copyButton.title = ready
+            ? "Copy the same list to the clipboard, ready to paste into Excel (works even when downloads are blocked)"
+            : "Search for a person first to copy their team";
+    }
+
+    // ------------------------------------------------------- copy fallback
+
+    private buildCopyPanel(): HTMLDivElement {
+        const panel = document.createElement("div");
+        panel.className = "copy-panel";
+
+        const title = document.createElement("div");
+        title.className = "copy-title";
+        title.textContent = "Select all (Ctrl+A), copy (Ctrl+C) and paste into Excel";
+
+        this.copyArea = document.createElement("textarea");
+        this.copyArea.readOnly = true;
+        this.copyArea.addEventListener("keydown", (e) => e.stopPropagation());
+
+        const close = document.createElement("button");
+        close.type = "button";
+        close.textContent = "Close";
+        close.addEventListener("click", () => {
+            panel.style.display = "none";
+        });
+
+        panel.appendChild(title);
+        panel.appendChild(this.copyArea);
+        panel.appendChild(close);
+        return panel;
+    }
+
+    private showCopyPanel(content: string): void {
+        this.copyArea.value = content;
+        this.copyPanel.style.display = "flex";
+        this.copyArea.focus();
+        this.copyArea.select();
+    }
+
+    private copyWithTextarea(content: string): boolean {
+        const area = document.createElement("textarea");
+        area.value = content;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.select();
+        let ok = false;
+        try {
+            ok = document.execCommand("copy");
+        } catch {
+            ok = false;
+        }
+        document.body.removeChild(area);
+        return ok;
+    }
+
+    /** Copies the team as tab-separated text, which Excel splits into columns on paste. */
+    private copyTeam(): void {
+        const team = this.collectTeam();
+        if (team.length === 0) {
+            this.notify("Search for a person first.");
+            return;
+        }
+        const content = this.buildCsv(team, "\t");
+        const done = (): void => this.notify(`Copied ${team.length} people. Paste into Excel.`);
+        const fallback = (): void => {
+            if (this.copyWithTextarea(content)) {
+                done();
+            } else {
+                // Clipboard blocked by the host: show the text so it can be copied by hand.
+                this.showCopyPanel(content);
+                this.notify("Copy blocked here: select the text and copy it.");
+            }
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(content).then(done, fallback);
+        } else {
+            fallback();
+        }
     }
 
     private notify(message: string): void {
@@ -462,8 +551,8 @@ export class Visual implements IVisual {
         return team;
     }
 
-    private buildCsv(team: TeamRow[]): string {
-        const separator = SEPARATORS[this.settings.exportSeparator];
+    private buildCsv(team: TeamRow[], separatorOverride?: string): string {
+        const separator = separatorOverride ?? SEPARATORS[this.settings.exportSeparator];
         const line = (cells: string[]): string => cells.map((c) => csvCell(c, separator)).join(separator);
 
         const lines = [line(["Level", ...this.exportColumns.map((c) => c.name)])];
@@ -512,15 +601,17 @@ export class Visual implements IVisual {
                 if (status !== powerbi.PrivilegeStatus.Allowed) {
                     this.notify(
                         status === powerbi.PrivilegeStatus.DisabledByAdmin
-                            ? "Downloads from custom visuals are disabled by your Power BI admin."
-                            : "This Power BI host does not let the visual save files."
+                            ? "Downloads are disabled by your Power BI admin. Use Copy team."
+                            : "This Power BI host does not let the visual save files. Use Copy team."
                     );
                     return undefined;
                 }
                 return asPromise<boolean>(
                     service.exportVisualsContent(csv, this.exportFileName(), "csv", "Org Tree team (CSV)")
                 ).then((saved) => {
-                    this.notify(saved ? `Exported ${team.length} people.` : "Export canceled.");
+                    this.notify(
+                        saved ? `Exported ${team.length} people.` : "Export canceled or blocked. Try Copy team."
+                    );
                 });
             })
             .catch(() => this.notify("The export failed."));

@@ -27,7 +27,7 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 | 🌳 **Árvore vertical** | Organograma de cima para baixo, com conectores em cotovelo arredondado, retos ou curvos |
 | ➕ **Expandir / recolher** | Por ramo, mais *Expand all*, *Collapse all* e *Fit*; você escolhe quantos níveis começam abertos |
 | 🔎 **Busca pela linha hierárquica** | Digite um ID ou nome e veja a pessoa e todos os gestores acima dela, até o topo |
-| 📤 **Exportar equipe** | Pesquise uma pessoa e baixe um CSV com ela e **todos abaixo dela**, em todos os níveis |
+| 📤 **Exportar / Copiar equipe** | Pesquise uma pessoa e baixe um CSV — ou copie, pronto para colar no Excel — com ela e **todos abaixo dela**, em todos os níveis |
 | 🖱️ **Zoom e arrastar** | Roda do mouse e arrasto; *Fit* recentraliza tudo |
 | 📐 **Controles responsivos** | A barra de ferramentas cresce com o tamanho do visual (e com o navegador reduzido), e os botões +N / − dos cards crescem quando você afasta o zoom |
 | 🔗 **Filtro cruzado** | Clique num card para filtrar os outros visuais (Ctrl/Shift para selecionar vários) |
@@ -79,6 +79,7 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 - Use o botão **+N** em qualquer card dessa linha para trazer os outros subordinados diretos dele.
 - Durante a busca, **Expand all** mantém o filtro e abre todos os cards dele: cada gestor da linha mostra seus subordinados diretos, e a pessoa pesquisada também mostra a equipe inteira. **Collapse all** volta a mostrar só a linha hierárquica.
 - **Export team** (habilitado enquanto há uma busca ativa) salva um CSV com a(s) pessoa(s) pesquisada(s) e **todos abaixo dela(s), em todos os níveis**, estejam os cards expandidos ou não. Colunas: `Level` (0 = a pessoa pesquisada, 1 = subordinados diretos…), depois ID e nome do colaborador, ID e nome do gestor e as colunas de *Card details*. O arquivo é UTF-8 com BOM, então o Excel lê os acentos certo; o separador é definido em *Formatar visual → Export* (ponto e vírgula por padrão, para o Excel em português).
+- **Copy team** coloca a mesma lista na área de transferência (separada por tab), para colar direto no Excel. Use quando os **downloads estiverem bloqueados**: muitas organizações desativam *"Permitir downloads de visuais personalizados"* no portal de administração do Power BI/Fabric, e aí o **Export team** mostra uma mensagem do Power BI dizendo que o administrador restringiu os downloads. Se a área de transferência também estiver bloqueada, abre um painel com o texto para você copiar manualmente.
 - Limpe a caixa de busca para voltar à árvore completa.
 
 ## 📦 Dados de exemplo
