@@ -5,6 +5,10 @@
     { "name": "managerId", "displayName": "Manager ID", "kind": "Grouping" },
     { "name": "managerName", "displayName": "Manager name", "kind": "Grouping" },
     { "name": "details", "displayName": "Card details (optional)", "kind": "Grouping" },
+    { "name": "image", "displayName": "Image URL (optional)", "kind": "Grouping" },
+    { "name": "color", "displayName": "Card color, e.g. #64C8C8 (optional)", "kind": "Grouping" },
+    { "name": "tooltip", "displayName": "Tooltip text (optional)", "kind": "Grouping" },
+    { "name": "link", "displayName": "Link URL (optional)", "kind": "Grouping" },
     { "name": "flag", "displayName": "Flag column (optional)", "kind": "Grouping" }
   ],
   "dataViewMappings": [
@@ -17,6 +21,10 @@
             { "for": { "in": "managerId" } },
             { "for": { "in": "managerName" } },
             { "for": { "in": "details" } },
+            { "for": { "in": "image" } },
+            { "for": { "in": "color" } },
+            { "for": { "in": "tooltip" } },
+            { "for": { "in": "link" } },
             { "for": { "in": "flag" } }
           ],
           "dataReductionAlgorithm": { "window": { "count": 30000 } }
@@ -28,55 +36,80 @@
     "layout": {
       "displayName": "Layout",
       "properties": {
-        "initialDepth": {
-          "displayName": "Initially expanded levels",
-          "type": { "numeric": true }
+        "initialDepth": { "displayName": "Initially expanded levels", "type": { "numeric": true } },
+        "horizontalGap": { "displayName": "Horizontal gap", "type": { "numeric": true } },
+        "verticalGap": { "displayName": "Vertical gap", "type": { "numeric": true } }
+      }
+    },
+    "card": {
+      "displayName": "Cards",
+      "properties": {
+        "width": { "displayName": "Width", "type": { "numeric": true } },
+        "height": { "displayName": "Height", "type": { "numeric": true } },
+        "cornerRadius": { "displayName": "Corner radius", "type": { "numeric": true } },
+        "borderWidth": { "displayName": "Border width", "type": { "numeric": true } }
+      }
+    },
+    "avatar": {
+      "displayName": "Avatar",
+      "properties": {
+        "shape": {
+          "displayName": "Shape",
+          "type": {
+            "enumeration": [
+              { "displayName": "Circle", "value": "circle" },
+              { "displayName": "Square", "value": "square" },
+              { "displayName": "None", "value": "none" }
+            ]
+          }
         },
-        "cardWidth": {
-          "displayName": "Card width",
-          "type": { "numeric": true }
+        "position": {
+          "displayName": "Position",
+          "type": {
+            "enumeration": [
+              { "displayName": "Left", "value": "left" },
+              { "displayName": "Top", "value": "top" }
+            ]
+          }
         },
-        "cardHeight": {
-          "displayName": "Card height",
-          "type": { "numeric": true }
-        },
-        "horizontalGap": {
-          "displayName": "Horizontal gap",
-          "type": { "numeric": true }
-        },
-        "verticalGap": {
-          "displayName": "Vertical gap",
-          "type": { "numeric": true }
-        }
+        "size": { "displayName": "Size", "type": { "numeric": true } }
+      }
+    },
+    "text": {
+      "displayName": "Text",
+      "properties": {
+        "titleSize": { "displayName": "Title size", "type": { "numeric": true } },
+        "titleBold": { "displayName": "Title bold", "type": { "bool": true } },
+        "detailSize": { "displayName": "Details size", "type": { "numeric": true } }
       }
     },
     "colors": {
       "displayName": "Colors",
       "properties": {
-        "cardFill": {
-          "displayName": "Card fill",
-          "type": { "fill": { "solid": { "color": true } } }
+        "cardFill": { "displayName": "Card fill", "type": { "fill": { "solid": { "color": true } } } },
+        "cardBorder": { "displayName": "Card border", "type": { "fill": { "solid": { "color": true } } } },
+        "textColor": { "displayName": "Text", "type": { "fill": { "solid": { "color": true } } } },
+        "flagValue": { "displayName": "Flag value", "type": { "text": true } },
+        "flagFill": { "displayName": "Flagged card fill", "type": { "fill": { "solid": { "color": true } } } }
+      }
+    },
+    "connectors": {
+      "displayName": "Connectors",
+      "properties": {
+        "color": { "displayName": "Color", "type": { "fill": { "solid": { "color": true } } } },
+        "width": { "displayName": "Width", "type": { "numeric": true } },
+        "shape": {
+          "displayName": "Shape",
+          "type": {
+            "enumeration": [
+              { "displayName": "Elbow", "value": "elbow" },
+              { "displayName": "Curve", "value": "curve" },
+              { "displayName": "Straight", "value": "straight" }
+            ]
+          }
         },
-        "cardBorder": {
-          "displayName": "Card border",
-          "type": { "fill": { "solid": { "color": true } } }
-        },
-        "textColor": {
-          "displayName": "Text",
-          "type": { "fill": { "solid": { "color": true } } }
-        },
-        "linkColor": {
-          "displayName": "Connector lines",
-          "type": { "fill": { "solid": { "color": true } } }
-        },
-        "flagValue": {
-          "displayName": "Flag value",
-          "type": { "text": true }
-        },
-        "flagFill": {
-          "displayName": "Flagged card fill",
-          "type": { "fill": { "solid": { "color": true } } }
-        }
+        "cornerRadius": { "displayName": "Elbow corner radius", "type": { "numeric": true } },
+        "endMarker": { "displayName": "Dot at child end", "type": { "bool": true } }
       }
     }
   },

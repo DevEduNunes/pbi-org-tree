@@ -11,6 +11,10 @@ export interface RawRow {
     parentName: string;
     details: string[];
     flag: string;
+    image: string;
+    color: string;
+    tooltip: string;
+    link: string;
 }
 
 export interface OrgNode {
@@ -18,6 +22,10 @@ export interface OrgNode {
     name: string;
     details: string[];
     flag: string;
+    image: string;
+    color: string;
+    tooltip: string;
+    link: string;
     /** Row in the source table. -1 for managers that have no row of their own and for the virtual root. */
     rowIndex: number;
     /** Placeholder root used to hold several top-level nodes. Never drawn. */
@@ -36,7 +44,20 @@ export interface BuildResult {
 export const VIRTUAL_ROOT_ID = "__org_tree_root__";
 
 function makeNode(id: string, name: string, rowIndex: number): OrgNode {
-    return { id, name, details: [], flag: "", rowIndex, virtual: false, parent: null, children: [] };
+    return {
+        id,
+        name,
+        details: [],
+        flag: "",
+        image: "",
+        color: "",
+        tooltip: "",
+        link: "",
+        rowIndex,
+        virtual: false,
+        parent: null,
+        children: [],
+    };
 }
 
 /**
@@ -59,6 +80,10 @@ export function buildForest(rows: RawRow[]): BuildResult | null {
         const node = makeNode(r.id, r.name || r.id, r.rowIndex);
         node.details = r.details;
         node.flag = r.flag;
+        node.image = r.image;
+        node.color = r.color;
+        node.tooltip = r.tooltip;
+        node.link = r.link;
         nodes.set(r.id, node);
         if (r.parentId && r.parentId !== r.id) {
             parentOf.set(r.id, r.parentId);
