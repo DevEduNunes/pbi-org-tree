@@ -27,7 +27,9 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 | 🌳 **Árvore vertical** | Organograma de cima para baixo, com conectores em cotovelo arredondado, retos ou curvos |
 | ➕ **Expandir / recolher** | Por ramo, mais *Expand all*, *Collapse all* e *Fit*; você escolhe quantos níveis começam abertos |
 | 🔎 **Busca pela linha hierárquica** | Digite um ID ou nome e veja a pessoa e todos os gestores acima dela, até o topo |
+| 📤 **Exportar equipe** | Pesquise uma pessoa e baixe um CSV com ela e **todos abaixo dela**, em todos os níveis |
 | 🖱️ **Zoom e arrastar** | Roda do mouse e arrasto; *Fit* recentraliza tudo |
+| 📐 **Controles responsivos** | A barra de ferramentas cresce com o tamanho do visual (e com o navegador reduzido), e os botões +N / − dos cards crescem quando você afasta o zoom |
 | 🔗 **Filtro cruzado** | Clique num card para filtrar os outros visuais (Ctrl/Shift para selecionar vários) |
 | 🖼️ **Avatares** | Foto por link ou base64, ou iniciais automáticas; círculo ou quadrado, à esquerda ou no topo |
 | 🎨 **Cores vindas dos dados** | Uma coluna com cor (`#64C8C8`) pinta cada card; o contraste do texto é ajustado sozinho |
@@ -66,6 +68,8 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 | **Texto** | Tamanho do título, negrito, tamanho dos detalhes |
 | **Cores** | Preenchimento do card, borda, texto |
 | **Conectores** | Cor, largura, forma (cotovelo / curva / reta), raio do cotovelo, ponto na ponta do filho |
+| **Toolbar** | Escalar com o tamanho do visual (ligado por padrão) e um tamanho manual em % |
+| **Export** | Separador do CSV: ponto e vírgula, vírgula ou tab |
 
 ## 🔎 Como a busca funciona
 
@@ -74,6 +78,7 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 - O gráfico passa a mostrar só a **linha hierárquica**: o(s) resultado(s) e todos os gestores acima, até o topo, com o resultado destacado.
 - Use o botão **+N** em qualquer card dessa linha para trazer os outros subordinados diretos dele.
 - Durante a busca, **Expand all** mantém o filtro e abre todos os cards dele: cada gestor da linha mostra seus subordinados diretos, e a pessoa pesquisada também mostra a equipe inteira. **Collapse all** volta a mostrar só a linha hierárquica.
+- **Export team** (habilitado enquanto há uma busca ativa) salva um CSV com a(s) pessoa(s) pesquisada(s) e **todos abaixo dela(s), em todos os níveis**, estejam os cards expandidos ou não. Colunas: `Level` (0 = a pessoa pesquisada, 1 = subordinados diretos…), depois ID e nome do colaborador, ID e nome do gestor e as colunas de *Card details*. O arquivo é UTF-8 com BOM, então o Excel lê os acentos certo; o separador é definido em *Formatar visual → Export* (ponto e vírgula por padrão, para o Excel em português).
 - Limpe a caixa de busca para voltar à árvore completa.
 
 ## 📦 Dados de exemplo
@@ -90,6 +95,7 @@ Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu rela
 ## 🔒 Segurança e privacidade
 
 - O visual roda inteiramente dentro do sandbox do Power BI. Ele **não envia seus dados a lugar nenhum**, **não tem telemetria** e **não faz chamadas de rede próprias**.
+- O único arquivo que ele pode criar é o CSV que você pede com **Export team**, salvo pelo serviço de download do próprio Power BI: o Power BI pergunta onde salvar, e um administrador pode desativar downloads de visuais personalizados. Texto que uma planilha leria como fórmula (começando com `=`, `+`, `-` ou `@`) é exportado com uma aspa no início.
 - As únicas requisições de saída são as que o navegador faz para carregar uma imagem quando seus dados trazem um link de imagem `https://`.
 - Textos vindos dos dados são sempre exibidos como texto puro (nunca como HTML), e só links `https://` e dados PNG/JPEG/GIF/WebP são aceitos como imagem.
 - Encontrou uma vulnerabilidade? Avise em particular — veja o [SECURITY.md](SECURITY.md).

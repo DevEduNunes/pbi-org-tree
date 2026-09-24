@@ -9,14 +9,20 @@
     user-select: none;
   }
 
+  // The toolbar grows with the visual (see "Toolbar" in the format pane), so it stays readable
+  // when the visual is large or the browser is zoomed out. --ot-scale is set by the visual.
   .toolbar {
     position: absolute;
     top: 6px;
     left: 6px;
     z-index: 2;
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     align-items: center;
+    transform-origin: top left;
+    transform: scale(var(--ot-scale, 1));
+    max-width: calc((100% - 12px) / var(--ot-scale, 1));
 
     input,
     button {
@@ -38,9 +44,20 @@
       padding: 0 8px;
       cursor: pointer;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: #f0f0f0;
       }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .status {
+      font-size: 12px;
+      color: #555555;
+      margin-left: 4px;
     }
   }
 

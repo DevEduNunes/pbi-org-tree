@@ -27,7 +27,9 @@ No license fees, no per-user pricing, no data leaving your report.
 | 🌳 **Vertical tree** | Top-down chart with rounded, straight or curved connectors |
 | ➕ **Expand / collapse** | Per branch, plus *Expand all*, *Collapse all* and *Fit*; choose how many levels start open |
 | 🔎 **Reporting-line search** | Type an ID or a name and see the person and every manager above them, up to the top |
+| 📤 **Export team** | Search a person and download a CSV with them and **everyone below** them, at every level |
 | 🖱️ **Zoom & pan** | Mouse wheel and drag; *Fit* re-centers everything |
+| 📐 **Responsive controls** | The toolbar grows with the visual (and with a zoomed-out browser), and the +N / − buttons on the cards grow as you zoom out |
 | 🔗 **Cross-filtering** | Click a card to filter the other visuals (Ctrl/Shift to select several) |
 | 🖼️ **Avatars** | Photo from a link or base64, or automatic initials; circle or square, on the left or on top |
 | 🎨 **Colors from data** | A column with a color (`#64C8C8`) paints each card; text contrast is adjusted automatically |
@@ -66,6 +68,8 @@ No license fees, no per-user pricing, no data leaving your report.
 | **Text** | Title size, bold, details size |
 | **Colors** | Card fill, border, text |
 | **Connectors** | Color, width, shape (elbow / curve / straight), elbow radius, dot at the child end |
+| **Toolbar** | Scale with the visual's size (on by default) and a manual size in % |
+| **Export** | CSV separator: semicolon, comma or tab |
 
 ## 🔎 How search works
 
@@ -74,6 +78,7 @@ No license fees, no per-user pricing, no data leaving your report.
 - The chart then shows only the **reporting line**: the match(es) and all their managers up to the top, with the match highlighted.
 - Use the **+N** button on any card in that line to bring in its other direct reports.
 - While searching, **Expand all** keeps the filter and opens every card in it: each manager in the line shows their direct reports, and the searched person also shows their whole team. **Collapse all** goes back to just the reporting line.
+- **Export team** (enabled while a search is active) saves a CSV with the searched person(s) and **everyone below them, at every level**, whether or not the cards are expanded. Columns: `Level` (0 = the searched person, 1 = direct reports…), then Employee ID, name, Manager ID, manager name and the *Card details* columns. The file is UTF-8 with BOM, so Excel reads accents correctly; the separator is set in *Format visual → Export* (semicolon by default, for Excel in Portuguese).
 - Clear the search box to go back to the full tree.
 
 ## 📦 Sample data
@@ -90,6 +95,7 @@ No license fees, no per-user pricing, no data leaving your report.
 ## 🔒 Security & privacy
 
 - The visual runs entirely inside the Power BI sandbox. It **does not send your data anywhere**, has **no telemetry**, and makes **no network calls of its own**.
+- The only file it can create is the CSV you request with **Export team**, saved through Power BI's own download service: Power BI asks you where to save it, and an admin can disable downloads from custom visuals. Text that would be read as a formula by a spreadsheet (starting with `=`, `+`, `-` or `@`) is exported with a leading quote.
 - The only outgoing requests are the ones your browser makes to load an image when your data contains an `https://` image link.
 - Text from your data is always rendered as plain text (never as HTML), and only `https://` links and PNG/JPEG/GIF/WebP data are accepted as images.
 - Found a vulnerability? Please report it privately — see [SECURITY.md](SECURITY.md).

@@ -8,7 +8,7 @@ import { select, Selection } from "d3-selection";
 import { zoom, zoomIdentity, ZoomBehavior } from "d3-zoom";
 
 import { buildForest, levelOf, OrgNode, RawRow } from "./orgModel";
-import { readSettings, settingsToInstances, Settings, DEFAULT_SETTINGS } from "./settings";
+import { readSettings, settingsToInstances, Settings, DEFAULT_SETTINGS, ExportSeparator } from "./settings";
 
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
@@ -22,6 +22,26 @@ type SvgSelection<T extends SVGElement> = Selection<T, unknown, null, undefined>
 
 const MINUS = "−";
 const MAX_SEARCH_MATCHES = 100;
+const SEPARATORS: { [key in ExportSeparator]: string } = { semicolon: ";", comma: ",", tab: "\t" };
+
+interface TeamRow {
+    node: OrgNode;
+    /** 0 = the searched person, 1 = their direct reports, and so on. */
+    level: number;
+}
+
+interface ExportColumn {
+    role: string;
+    name: string;
+    index: number;
+}
+
+/** One CSV cell. Text starting with = + - @ gets a leading quote so spreadsheets never read it as a formula. */
+function csvCell(value: string, separator: string): string {
+    const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+    const needsQuotes = safe.includes(separator) || /["\r\n]/.test(safe);
+    return needsQuotes ? `"${safe.replace(/"/g, '""')}"` : safe;
+}
 
 function text(value: powerbi.PrimitiveValue | undefined): string {
     return value === null || value === undefined ? "" : String(value).trim();
@@ -89,6 +109,9 @@ export class Visual implements IVisual {
     private container: HTMLDivElement;
     private emptyMessage: HTMLDivElement;
     private searchInput!: HTMLInputElement;
+    private exportButton!: HTMLButtonElement;
+    private statusLabel!: HTMLSpanElement;
+    private statusTimer: number | undefined;
     private svg: SvgSelection<SVGSVGElement>;
     private canvas: SvgSelection<SVGGElement>;
     private zoomBehavior: ZoomBehavior<SVGSVGElement, unknown>;
@@ -113,6 +136,10 @@ export class Visual implements IVisual {
     private searchExpanded = new Set<string>();
     private emptyText = "";
     private visibleNodes: HierarchyPointNode<OrgNode>[] = [];
+    private zoomK = 1;
+    private toolbarScale = 1;
+    private tableRows: powerbi.DataViewTableRow[] = [];
+    private exportColumns: ExportColumn[] = [];
 
     constructor(options?: VisualConstructorOptions) {
         // The generated visual plugin may call this without options (type-only); Power BI always passes them.
@@ -141,7 +168,9 @@ export class Visual implements IVisual {
         this.zoomBehavior = zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.1, 3])
             .on("zoom", (event) => {
+                this.zoomK = event.transform.k;
                 this.canvas.attr("transform", event.transform.toString());
+                this.applyToggleScale();
             });
         this.svg.call(this.zoomBehavior);
         this.svg.on("dblclick.zoom", null);
@@ -161,7 +190,29 @@ export class Visual implements IVisual {
             this.settings = readSettings(dataView);
             this.rebuild(dataView);
         }
+        this.toolbarScale = this.computeToolbarScale();
+        this.container.style.setProperty("--ot-scale", String(this.toolbarScale));
         this.render();
+    }
+
+    /** Bigger visual (or zoomed-out browser) -> bigger toolbar, so it stays readable. */
+    private computeToolbarScale(): number {
+        const s = this.settings;
+        const fromViewport = Math.min(this.viewport.width / 720, this.viewport.height / 420);
+        const auto = s.toolbarAuto ? Math.min(2.5, Math.max(1, fromViewport)) : 1;
+        return Math.round(auto * (s.toolbarSize / 100) * 100) / 100;
+    }
+
+    /** The +N / − buttons on the cards grow as the chart is zoomed out, so they stay clickable. */
+    private toggleScale(): number {
+        return Math.min(3.5, Math.max(1, 1 / this.zoomK));
+    }
+
+    private applyToggleScale(): void {
+        const s = this.settings;
+        this.canvas
+            .selectAll<SVGGElement, unknown>("g.org-toggle")
+            .attr("transform", `translate(${s.cardWidth / 2},${s.cardHeight}) scale(${this.toggleScale()})`);
     }
 
     public enumerateObjectInstances(
@@ -177,6 +228,8 @@ export class Visual implements IVisual {
         this.nodes = new Map();
         this.selectionIds = new Map();
         this.hasImageRole = false;
+        this.tableRows = [];
+        this.exportColumns = [];
 
         const table = dataView && dataView.table;
         if (!table) {
@@ -202,7 +255,20 @@ export class Visual implements IVisual {
         }
         this.hasImageRole = imageCol >= 0;
 
-        const cell = (row: powerbi.DataViewTableRow, col: number): string => (col >= 0 ? text(row[col]) : "");
+        // Columns of the CSV export: the four core fields, then the card details (no image or color).
+        this.tableRows = table.rows ?? [];
+        const exportable: Array<[string, number]> = [
+            ["employeeId", idCol],
+            ["employeeName", nameCol],
+            ["managerId", parentCol],
+            ["managerName", parentNameCol],
+            ...detailCols.map((c): [string, number] => ["details", c]),
+        ];
+        this.exportColumns = exportable
+            .filter(([, index]) => index >= 0)
+            .map(([role, index]) => ({ role, index, name: table.columns[index].displayName }));
+
+        const cell =(row: powerbi.DataViewTableRow, col: number): string => (col >= 0 ? text(row[col]) : "");
 
         const rows: RawRow[] = (table.rows ?? []).map((row, rowIndex) => ({
             rowIndex,
@@ -339,7 +405,125 @@ export class Visual implements IVisual {
                 this.render();
             })
         );
+
+        this.exportButton = button("Export team", "", () => this.exportTeam());
+        bar.appendChild(this.exportButton);
+
+        this.statusLabel = document.createElement("span");
+        this.statusLabel.className = "status";
+        bar.appendChild(this.statusLabel);
+        this.updateExportState();
         return bar;
+    }
+
+    // -------------------------------------------------------------- export
+
+    private updateExportState(): void {
+        const ready = this.matchIds.size > 0;
+        this.exportButton.disabled = !ready;
+        this.exportButton.title = ready
+            ? "Download a CSV with the searched person(s) and everyone below them, at every level"
+            : "Search for a person first to export their team";
+    }
+
+    private notify(message: string): void {
+        this.statusLabel.textContent = message;
+        if (this.statusTimer !== undefined) {
+            window.clearTimeout(this.statusTimer);
+        }
+        this.statusTimer = window.setTimeout(() => {
+            this.statusLabel.textContent = "";
+        }, 7000);
+    }
+
+    /** The searched people and everyone below them, at every level, without repeating anyone. */
+    private collectTeam(): TeamRow[] {
+        const matches = Array.from(this.matchIds)
+            .map((id) => this.nodes.get(id))
+            .filter((n): n is OrgNode => n !== undefined)
+            .sort((a, b) => levelOf(a) - levelOf(b) || a.name.localeCompare(b.name));
+
+        const seen = new Set<string>();
+        const team: TeamRow[] = [];
+        for (const match of matches) {
+            const stack: TeamRow[] = [{ node: match, level: 0 }];
+            while (stack.length > 0) {
+                const item = stack.pop() as TeamRow;
+                if (seen.has(item.node.id)) {
+                    continue;
+                }
+                seen.add(item.node.id);
+                team.push(item);
+                for (let i = item.node.children.length - 1; i >= 0; i--) {
+                    stack.push({ node: item.node.children[i], level: item.level + 1 });
+                }
+            }
+        }
+        return team;
+    }
+
+    private buildCsv(team: TeamRow[]): string {
+        const separator = SEPARATORS[this.settings.exportSeparator];
+        const line = (cells: string[]): string => cells.map((c) => csvCell(c, separator)).join(separator);
+
+        const lines = [line(["Level", ...this.exportColumns.map((c) => c.name)])];
+        for (const { node, level } of team) {
+            const row = node.rowIndex >= 0 ? this.tableRows[node.rowIndex] : undefined;
+            const cells = this.exportColumns.map((c) => {
+                if (row) {
+                    return text(row[c.index]);
+                }
+                // A manager without a row of their own: only the ID and the name are known.
+                if (c.role === "employeeId") {
+                    return node.id;
+                }
+                return c.role === "employeeName" ? node.name : "";
+            });
+            lines.push(line([String(level), ...cells]));
+        }
+        return lines.join("\r\n");
+    }
+
+    private exportFileName(): string {
+        const base = this.matchIds.size === 1 ? Array.from(this.matchIds)[0] : this.query;
+        const safe = base.replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 40) || "search";
+        return `org-tree-team-${safe}.csv`;
+    }
+
+    private exportTeam(): void {
+        const team = this.collectTeam();
+        if (team.length === 0) {
+            this.notify("Search for a person first.");
+            return;
+        }
+        const service = this.host.downloadService;
+        if (!service) {
+            this.notify("This Power BI host cannot save files.");
+            return;
+        }
+        // The BOM makes Excel read the accents correctly.
+        const csv = "﻿" + this.buildCsv(team);
+
+        // Power BI's promises are thenables; wrapping them gives a standard Promise.
+        const asPromise = <T>(p: unknown): Promise<T> => Promise.resolve(p as PromiseLike<T>);
+
+        asPromise<powerbi.PrivilegeStatus>(service.exportStatus())
+            .then((status) => {
+                if (status !== powerbi.PrivilegeStatus.Allowed) {
+                    this.notify(
+                        status === powerbi.PrivilegeStatus.DisabledByAdmin
+                            ? "Downloads from custom visuals are disabled by your Power BI admin."
+                            : "This Power BI host does not let the visual save files."
+                    );
+                    return undefined;
+                }
+                return asPromise<boolean>(
+                    service.exportVisualsContent(csv, this.exportFileName(), "csv", "Org Tree team (CSV)")
+                ).then((saved) => {
+                    this.notify(saved ? `Exported ${team.length} people.` : "Export canceled.");
+                });
+            })
+            .catch(() => this.notify("The export failed."));
     }
 
     /** While searching: shows every subordinate, direct and indirect, of the given node. */
@@ -414,6 +598,7 @@ export class Visual implements IVisual {
 
     private render(): void {
         const { width, height } = this.viewport;
+        this.updateExportState();
         this.svg.attr("width", width).attr("height", height);
         this.canvas.selectAll("*").remove();
 
@@ -671,7 +856,8 @@ export class Visual implements IVisual {
 
         const toggle = card
             .append("g")
-            .attr("transform", `translate(${s.cardWidth / 2},${s.cardHeight})`)
+            .attr("class", "org-toggle")
+            .attr("transform", `translate(${s.cardWidth / 2},${s.cardHeight}) scale(${this.toggleScale()})`)
             .style("cursor", "pointer");
         toggle
             .append("rect")
@@ -713,7 +899,7 @@ export class Visual implements IVisual {
             maxY = Math.max(maxY, n.y + s.cardHeight + 10);
         }
         const pad = 40;
-        const top = 34; // room for the toolbar
+        const top = 24 * this.toolbarScale + 16; // room for the toolbar
         const w = maxX - minX;
         const h = maxY - minY;
         const k = Math.min(1, (this.viewport.width - pad) / w, (this.viewport.height - top - pad) / h);

@@ -17,6 +17,7 @@ Please include what you found, how to reproduce it and the impact. You can expec
 ### What the visual does (and does not do)
 - Runs inside the Power BI visual sandbox; no network calls of its own, no telemetry, no data leaves the report.
 - Renders text from your data as plain text (never HTML).
+- Can save one file only when you click **Export team**: a CSV built from data the report already gave the visual, saved through Power BI's download service (`ExportContent` privilege, optional). Cells that start with `=`, `+`, `-` or `@` are prefixed with a quote to prevent spreadsheet formula injection.
 - Accepts only `https://` links and PNG/JPEG/GIF/WebP data as images. The browser requests image links, as it does for any image.
 
 ### For contributors
@@ -39,6 +40,7 @@ Inclua o que encontrou, como reproduzir e o impacto. Você deve receber uma conf
 ### O que o visual faz (e não faz)
 - Roda dentro do sandbox de visuais do Power BI; sem chamadas de rede próprias, sem telemetria, nenhum dado sai do relatório.
 - Exibe textos vindos dos dados como texto puro (nunca HTML).
+- Só salva um arquivo quando você clica em **Export team**: um CSV montado com dados que o relatório já entregou ao visual, salvo pelo serviço de download do Power BI (privilégio `ExportContent`, opcional). Células que começam com `=`, `+`, `-` ou `@` recebem uma aspa no início para evitar injeção de fórmula em planilhas.
 - Aceita como imagem só links `https://` e dados PNG/JPEG/GIF/WebP. O navegador requisita os links de imagem, como faz com qualquer imagem.
 
 ### Para quem contribui

@@ -3,6 +3,7 @@ import powerbi from "powerbi-visuals-api";
 export type AvatarShape = "circle" | "square" | "none";
 export type AvatarPosition = "left" | "top";
 export type ConnectorShape = "elbow" | "curve" | "straight";
+export type ExportSeparator = "semicolon" | "comma" | "tab";
 
 export interface Settings {
     // layout
@@ -32,6 +33,11 @@ export interface Settings {
     linkShape: ConnectorShape;
     linkRadius: number;
     linkEndMarker: boolean;
+    // toolbar
+    toolbarAuto: boolean;
+    toolbarSize: number;
+    // export
+    exportSeparator: ExportSeparator;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -56,6 +62,9 @@ export const DEFAULT_SETTINGS: Settings = {
     linkShape: "elbow",
     linkRadius: 10,
     linkEndMarker: false,
+    toolbarAuto: true,
+    toolbarSize: 100,
+    exportSeparator: "semicolon",
 };
 
 type Objects = powerbi.DataViewObjects | undefined;
@@ -114,6 +123,11 @@ export function readSettings(dataView: powerbi.DataView | undefined): Settings {
         linkShape: readEnum(o, "connectors", "shape", ["elbow", "curve", "straight"] as const, d.linkShape),
         linkRadius: readNumber(o, "connectors", "cornerRadius", d.linkRadius, 0, 60),
         linkEndMarker: readBool(o, "connectors", "endMarker", d.linkEndMarker),
+
+        toolbarAuto: readBool(o, "toolbar", "autoScale", d.toolbarAuto),
+        toolbarSize: readNumber(o, "toolbar", "size", d.toolbarSize, 50, 300),
+
+        exportSeparator: readEnum(o, "export", "separator", ["semicolon", "comma", "tab"] as const, d.exportSeparator),
     };
 }
 
@@ -159,6 +173,12 @@ export function settingsToInstances(objectName: string, s: Settings): powerbi.Vi
                 cornerRadius: s.linkRadius,
                 endMarker: s.linkEndMarker,
             };
+            break;
+        case "toolbar":
+            properties = { autoScale: s.toolbarAuto, size: s.toolbarSize };
+            break;
+        case "export":
+            properties = { separator: s.exportSeparator };
             break;
         default:
             return [];

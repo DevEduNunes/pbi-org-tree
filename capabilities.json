@@ -103,7 +103,29 @@
         "cornerRadius": { "displayName": "Elbow corner radius", "type": { "numeric": true } },
         "endMarker": { "displayName": "Dot at child end", "type": { "bool": true } }
       }
+    },
+    "toolbar": {
+      "displayName": "Toolbar",
+      "properties": {
+        "autoScale": { "displayName": "Scale with visual size", "type": { "bool": true } },
+        "size": { "displayName": "Size (%)", "type": { "numeric": true } }
+      }
+    },
+    "export": {
+      "displayName": "Export",
+      "properties": {
+        "separator": {
+          "displayName": "CSV separator",
+          "type": {
+            "enumeration": [
+              { "displayName": "Semicolon (;) - Excel pt-BR", "value": "semicolon" },
+              { "displayName": "Comma (,)", "value": "comma" },
+              { "displayName": "Tab", "value": "tab" }
+            ]
+          }
+        }
+      }
     }
   },
-  "privileges": []
+  "privileges": [{ "name": "ExportContent", "essential": false }]
 }
