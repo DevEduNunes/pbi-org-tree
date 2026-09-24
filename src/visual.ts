@@ -292,23 +292,34 @@ export class Visual implements IVisual {
 
         bar.appendChild(this.searchInput);
         bar.appendChild(
-            button("Expand all", "Expand every branch", () => {
-                this.clearSearch();
-                this.collapsed.clear();
+            button("Expand all", "Expand every branch (while searching: everyone below the matches)", () => {
+                if (this.focusIds) {
+                    for (const id of this.matchIds) {
+                        const match = this.nodes.get(id);
+                        if (match) {
+                            this.expandBelow(match);
+                        }
+                    }
+                } else {
+                    this.collapsed.clear();
+                }
                 this.needFit = true;
                 this.render();
             })
         );
         bar.appendChild(
-            button("Collapse all", "Show only the top level", () => {
-                this.clearSearch();
-                for (const node of this.nodes.values()) {
-                    if (!node.virtual && node.children.length > 0 && node !== this.root) {
-                        this.collapsed.add(node.id);
+            button("Collapse all", "Show only the top level (while searching: only the reporting line)", () => {
+                if (this.focusIds) {
+                    this.searchExpanded.clear();
+                } else {
+                    for (const node of this.nodes.values()) {
+                        if (!node.virtual && node.children.length > 0 && node !== this.root) {
+                            this.collapsed.add(node.id);
+                        }
                     }
-                }
-                if (this.root && !this.root.virtual) {
-                    this.collapsed.delete(this.root.id);
+                    if (this.root && !this.root.virtual) {
+                        this.collapsed.delete(this.root.id);
+                    }
                 }
                 this.needFit = true;
                 this.render();
@@ -323,11 +334,16 @@ export class Visual implements IVisual {
         return bar;
     }
 
-    private clearSearch(): void {
-        this.searchInput.value = "";
-        this.query = "";
-        this.searchExpanded.clear();
-        this.computeSearch();
+    /** While searching: shows every subordinate, direct and indirect, of the given node. */
+    private expandBelow(node: OrgNode): void {
+        const stack: OrgNode[] = [node];
+        while (stack.length > 0) {
+            const cur = stack.pop() as OrgNode;
+            if (cur.children.length > 0) {
+                this.searchExpanded.add(cur.id);
+                stack.push(...cur.children);
+            }
+        }
     }
 
     /**

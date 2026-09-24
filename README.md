@@ -73,7 +73,8 @@ No license fees, no per-user pricing, no data leaving your report.
 - Otherwise, names and IDs *containing* your text match (up to 100 people).
 - The chart then shows only the **reporting line**: the match(es) and all their managers up to the top, with the match highlighted.
 - Use the **+N** button on any card in that line to bring in its other direct reports.
-- Clear the box, or press *Expand all* / *Collapse all*, to go back to the full tree.
+- While searching, **Expand all** shows everyone below the match(es) — all direct and indirect reports — and keeps the filter; **Collapse all** goes back to just the reporting line.
+- Clear the search box to go back to the full tree.
 
 ## 📦 Sample data
 
