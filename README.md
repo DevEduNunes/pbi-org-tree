@@ -4,7 +4,7 @@ An open-source (MIT) custom visual that draws a **vertical organization chart** 
 
 **Features**
 - Vertical tree with **expand / collapse** per branch, plus *Expand all*, *Collapse all* and *Fit*
-- **Search** by name or ID (expands the path to every match and highlights it)
+- **Search** by name or ID shows the **reporting line**: the match and every manager above it up to the top, highlighted. An exact ID wins over partial matches. Use the +N button on any card to bring in its other reports; *Expand all* / *Collapse all* clear the search
 - Pan and zoom (mouse wheel + drag)
 - **Cross-filtering**: click a card to filter the rest of the report (Ctrl/Shift for multi-select)
 - Optional **card details** (title, department, …), shown as lines on the card and in the hover tooltip

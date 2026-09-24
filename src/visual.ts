@@ -20,6 +20,9 @@ import DataView = powerbi.DataView;
 
 type SvgSelection<T extends SVGElement> = Selection<T, unknown, null, undefined>;
 
+const MINUS = "−";
+const MAX_SEARCH_MATCHES = 100;
+
 function text(value: powerbi.PrimitiveValue | undefined): string {
     return value === null || value === undefined ? "" : String(value).trim();
 }
@@ -81,6 +84,12 @@ export class Visual implements IVisual {
     private lastInitialDepth = -1;
     private query = "";
     private needFit = true;
+    private matchIds = new Set<string>();
+    /** While searching: the matches plus all their ancestors. null when not searching. */
+    private focusIds: Set<string> | null = null;
+    /** While searching: nodes whose other subordinates were expanded by the user. */
+    private searchExpanded = new Set<string>();
+    private emptyText = "";
     private visibleNodes: HierarchyPointNode<OrgNode>[] = [];
 
     constructor(options?: VisualConstructorOptions) {
@@ -100,8 +109,8 @@ export class Visual implements IVisual {
 
         this.emptyMessage = document.createElement("div");
         this.emptyMessage.className = "empty";
-        this.emptyMessage.textContent =
-            "Add Employee ID and Manager ID (and, optionally, names) to build the organization chart.";
+        this.emptyText = "Add Employee ID and Manager ID (and, optionally, names) to build the organization chart.";
+        this.emptyMessage.textContent = this.emptyText;
         this.container.appendChild(this.emptyMessage);
 
         this.svg = select(this.container).append("svg");
@@ -201,6 +210,7 @@ export class Visual implements IVisual {
         }
 
         this.applyInitialCollapse();
+        this.computeSearch();
         this.needFit = true;
     }
 
@@ -241,8 +251,9 @@ export class Visual implements IVisual {
         this.searchInput.placeholder = "Search name or ID";
         this.searchInput.addEventListener("input", () => {
             this.query = this.searchInput.value.trim().toLowerCase();
-            this.revealMatches();
-            this.needFit = this.query !== "";
+            this.searchExpanded.clear();
+            this.computeSearch();
+            this.needFit = true;
             this.render();
         });
         // Keep keystrokes inside the visual (Power BI shortcuts would otherwise grab them).
@@ -260,6 +271,7 @@ export class Visual implements IVisual {
         bar.appendChild(this.searchInput);
         bar.appendChild(
             button("Expand all", "Expand every branch", () => {
+                this.clearSearch();
                 this.collapsed.clear();
                 this.needFit = true;
                 this.render();
@@ -267,6 +279,7 @@ export class Visual implements IVisual {
         );
         bar.appendChild(
             button("Collapse all", "Show only the top level", () => {
+                this.clearSearch();
                 for (const node of this.nodes.values()) {
                     if (!node.virtual && node.children.length > 0 && node !== this.root) {
                         this.collapsed.add(node.id);
@@ -288,27 +301,67 @@ export class Visual implements IVisual {
         return bar;
     }
 
-    private matches(node: OrgNode): boolean {
-        if (!this.query || node.virtual) {
-            return false;
-        }
-        return node.name.toLowerCase().includes(this.query) || node.id.toLowerCase().includes(this.query);
+    private clearSearch(): void {
+        this.searchInput.value = "";
+        this.query = "";
+        this.searchExpanded.clear();
+        this.computeSearch();
     }
 
-    /** Expands every ancestor of every match so the results are visible. */
-    private revealMatches(): void {
+    /**
+     * Search shows the reporting line: every match plus all its ancestors up to the top.
+     * An exact ID match wins; otherwise names and IDs containing the text match (capped, to keep the chart readable).
+     */
+    private computeSearch(): void {
+        this.matchIds = new Set();
+        this.focusIds = null;
         if (!this.query) {
             return;
         }
-        for (const node of this.nodes.values()) {
-            if (this.matches(node)) {
-                let cur = node.parent;
-                while (cur) {
-                    this.collapsed.delete(cur.id);
-                    cur = cur.parent;
-                }
+        const q = this.query;
+        const all = Array.from(this.nodes.values()).filter((n) => !n.virtual);
+        let found = all.filter((n) => n.id.toLowerCase() === q);
+        if (found.length === 0) {
+            found = all.filter((n) => n.name.toLowerCase().includes(q) || n.id.toLowerCase().includes(q));
+        }
+        const focus = new Set<string>();
+        for (const match of found.slice(0, MAX_SEARCH_MATCHES)) {
+            this.matchIds.add(match.id);
+            let cur: OrgNode | null = match;
+            while (cur) {
+                focus.add(cur.id);
+                cur = cur.parent;
             }
         }
+        this.focusIds = focus;
+    }
+
+    /** Whether a node shows a +/- button, and what it says. */
+    private toggleState(d: OrgNode): { open: boolean; label: string } | null {
+        if (d.children.length === 0) {
+            return null;
+        }
+        const focus = this.focusIds;
+        if (focus) {
+            const hidden = d.children.filter((c) => !focus.has(c.id)).length;
+            const open = this.searchExpanded.has(d.id);
+            if (hidden === 0 && !open) {
+                return null;
+            }
+            return { open, label: open ? MINUS : `+${hidden}` };
+        }
+        const open = !this.collapsed.has(d.id);
+        return { open, label: open ? MINUS : `+${d.children.length}` };
+    }
+
+    private toggleNode(d: OrgNode): void {
+        const set = this.focusIds ? this.searchExpanded : this.collapsed;
+        if (set.has(d.id)) {
+            set.delete(d.id);
+        } else {
+            set.add(d.id);
+        }
+        this.render();
     }
 
     // ----------------------------------------------------------- rendering
@@ -319,17 +372,36 @@ export class Visual implements IVisual {
         this.canvas.selectAll("*").remove();
 
         if (!this.root) {
+            this.emptyMessage.textContent = this.emptyText;
             this.svg.style("display", "none");
             this.emptyMessage.style.display = "block";
             return;
         }
+        if (this.focusIds && this.matchIds.size === 0) {
+            this.emptyMessage.textContent = `No employee matches "${this.searchInput.value.trim()}".`;
+            this.svg.style("display", "none");
+            this.emptyMessage.style.display = "block";
+            return;
+        }
+        this.emptyMessage.textContent = this.emptyText;
         this.svg.style("display", "block");
         this.emptyMessage.style.display = "none";
 
         const s = this.settings;
-        const hier = hierarchy<OrgNode>(this.root, (d) =>
-            this.collapsed.has(d.id) || d.children.length === 0 ? null : d.children
-        );
+        const focus = this.focusIds;
+        const hier = hierarchy<OrgNode>(this.root, (d) => {
+            if (d.children.length === 0) {
+                return null;
+            }
+            if (focus) {
+                if (this.searchExpanded.has(d.id)) {
+                    return d.children;
+                }
+                const onPath = d.children.filter((c) => focus.has(c.id));
+                return onPath.length > 0 ? onPath : null;
+            }
+            return this.collapsed.has(d.id) ? null : d.children;
+        });
         const layout = tree<OrgNode>()
             .nodeSize([s.cardWidth + s.horizontalGap, s.cardHeight + s.verticalGap])
             .separation(() => 1);
@@ -432,7 +504,7 @@ export class Visual implements IVisual {
             const d = n.data;
             const sid = this.selectionIds.get(d.id);
             const isSelected = !!sid && selected.some((x) => x.equals(sid));
-            const isMatch = this.matches(d);
+            const isMatch = this.matchIds.has(d.id);
             const customFill = isValidColor(d.color) ? d.color : "";
             const fill = customFill || s.cardFill;
             const ink = (customFill && readableText(customFill)) || s.textColor;
@@ -490,8 +562,9 @@ export class Visual implements IVisual {
                     .then(() => this.render());
             });
 
-            if (d.children.length > 0) {
-                this.drawToggle(card, d);
+            const toggle = this.toggleState(d);
+            if (toggle) {
+                this.drawToggle(card, d, toggle.label);
             }
         }
     }
@@ -546,10 +619,8 @@ export class Visual implements IVisual {
             .text(initials(d.name));
     }
 
-    private drawToggle(card: SvgSelection<SVGGElement>, d: OrgNode): void {
+    private drawToggle(card: SvgSelection<SVGGElement>, d: OrgNode, label: string): void {
         const s = this.settings;
-        const isCollapsed = this.collapsed.has(d.id);
-        const label = isCollapsed ? `+${d.children.length}` : "−";
 
         const toggle = card
             .append("g")
@@ -573,12 +644,7 @@ export class Visual implements IVisual {
             .text(label);
         toggle.on("click", (event: MouseEvent) => {
             event.stopPropagation();
-            if (this.collapsed.has(d.id)) {
-                this.collapsed.delete(d.id);
-            } else {
-                this.collapsed.add(d.id);
-            }
-            this.render();
+            this.toggleNode(d);
         });
     }
 
