@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Org Tree - dev harness</title>
+<style>
+  body { font: 13px "Segoe UI", Arial, sans-serif; margin: 0; color: #1f2933; background: #f5f7fa; }
+  header { padding: 8px 14px; background: #1f2933; color: #fff; display: flex; gap: 12px; align-items: center; }
+  #controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; padding: 10px 14px; }
+  #controls label { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: #52606d; }
+  #controls input, #controls textarea, #controls button { font: inherit; }
+  #settings { width: 360px; height: 48px; font: 11px Consolas, monospace; }
+  #stage { margin: 0 14px 14px; background: #fff; border: 1px dashed #9aa5b1; position: relative; overflow: hidden; }
+  #log { padding: 0 14px 14px; font: 11px Consolas, monospace; color: #52606d; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<header>
+  <b>Org Tree - dev harness</b>
+  <span id="status">loading...</span>
+</header>
+<div id="controls">
+  <label>Width <input id="w" type="number" value="1000" size="5"></label>
+  <label>Height <input id="h" type="number" value="600" size="5"></label>
+  <label>Format pane values (JSON, same shape as Power BI objects)
+    <textarea id="settings">{}</textarea></label>
+  <button id="mount">Render sample-data.csv</button>
+  <label>Search <input id="q" placeholder="ID or name"></label>
+  <button id="save">Save SVG (needs dev/server.py)</button>
+</div>
+<div id="stage"></div>
+<div id="log"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/typescript@5.9.3/lib/typescript.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/less@4.2.0/dist/less.min.js"></script>
+<script type="module">
+// Runs the real src/visual.ts in a plain browser tab with a tiny stand-in for the Power BI host.
+// No Node needed: TypeScript and Less are loaded from a CDN and everything is transpiled on the fly.
+const { createLoader } = await import("./loader.js?t=" + Date.now());
+
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+
+const [hierarchyMod, selectionMod, zoomMod] = await Promise.all([
+  import("https://cdn.jsdelivr.net/npm/d3-hierarchy@3.1.2/+esm"),
+  import("https://cdn.jsdelivr.net/npm/d3-selection@3.0.0/+esm"),
+  import("https://cdn.jsdelivr.net/npm/d3-zoom@3.0.0/+esm"),
+]);
+
+const shims = {
+  "powerbi-visuals-api": { default: { PrivilegeStatus: { Allowed: 0, NotDeclared: 1, NotSupported: 2, DisabledByAdmin: 3 } } },
+  "d3-hierarchy": hierarchyMod,
+  "d3-selection": selectionMod,
+  "d3-zoom": zoomMod,
+};
+
+const css = (await less.render(await (await fetch("/style/visual.less")).text())).css;
+document.head.appendChild(Object.assign(document.createElement("style"), { textContent: css }));
+
+const { Visual } = await createLoader(window.ts, shims).load("src/visual.ts");
+
+// --- sample data -> a Power BI style table data view -------------------------------------------------------
+const ROLES = { EmployeeId: "employeeId", EmployeeName: "employeeName", ManagerId: "managerId", ManagerName: "managerName", Color: "color", ImageUrl: "image" };
+const csv = (await (await fetch("/sample/sample-data.csv")).text()).trim().split(/\r?\n/).map((l) => l.split(","));
+const [header, ...body] = csv;
+const columns = header.map((name) => ({ displayName: name, roles: { [ROLES[name] || "details"]: true } }));
+const rows = body.map((r) => r.map((v, i) => (header[i] === "EmployeeId" || header[i] === "ManagerId" ? v : v)));
+
+function dataView(objects) {
+  return { metadata: { objects }, table: { columns, rows } };
+}
+
+// --- a tiny stand-in for the Power BI host -----------------------------------------------------------------
+let selected = [];
+const host = {
+  createSelectionManager: () => ({
+    registerOnSelectCallback() {},
+    getSelectionIds: () => selected,
+    select: async (id, multi) => {
+      selected = multi ? [...selected, id] : selected.length === 1 && selected[0].equals(id) ? [] : [id];
+      return selected;
+    },
+    clear: async () => {
+      selected = [];
+      return [];
+    },
+  }),
+  createSelectionIdBuilder: () => ({
+    withTable(_t, rowIndex) { this.row = rowIndex; return this; },
+    createSelectionId() { const row = this.row; return { row, equals: (o) => !!o && o.row === row }; },
+  }),
+  downloadService: { exportStatus: async () => 0, exportVisualsContent: async () => true },
+  launchUrl: () => {},
+};
+
+let visual;
+let container;
+
+function mount({ width = 1000, height = 600, objects = {} } = {}) {
+  $("stage").replaceChildren();
+  $("stage").style.width = width + "px";
+  $("stage").style.height = height + "px";
+  selected = [];
+  visual = new Visual({ element: $("stage"), host });
+  container = $("stage").querySelector(".org-tree");
+  container.style.width = width + "px";
+  container.style.height = height + "px";
+  visual.update({ viewport: { width, height }, dataViews: [dataView(objects)], type: 2 });
+  return visual;
+}
+
+function search(query) {
+  const input = container.querySelector(".toolbar input");
+  input.value = query;
+  input.dispatchEvent(new Event("input"));
+}
+
+function click(label) {
+  const button = [...container.querySelectorAll(".toolbar button")].find((b) => b.textContent === label);
+  if (!button) throw new Error("No button called " + label);
+  button.click();
+}
+
+// --- export what is on screen as a standalone SVG (chart + a drawn copy of the toolbar) -------------------
+function exportSvg() {
+  const box = container.getBoundingClientRect();
+  const W = Math.round(box.width);
+  const H = Math.round(box.height);
+  const svg = container.querySelector("svg").cloneNode(true);
+  svg.setAttribute("xmlns", NS);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", W);
+  svg.setAttribute("height", H);
+  svg.setAttribute("font-family", "'Segoe UI', 'Helvetica Neue', Arial, sans-serif");
+  svg.removeAttribute("style");
+  svg.querySelectorAll("title").forEach((t) => t.remove());
+
+  const el = (name, attrs, text) => {
+    const n = document.createElementNS(NS, name);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    if (text !== undefined) n.textContent = text;
+    return n;
+  };
+  svg.insertBefore(el("rect", { width: W, height: H, fill: "#ffffff" }), svg.firstChild);
+
+  const scale = visual.toolbarScale;
+  const toolbar = el("g", {});
+  for (const c of container.querySelectorAll(".toolbar input, .toolbar button")) {
+    const r = c.getBoundingClientRect();
+    const x = r.left - box.left;
+    const y = r.top - box.top;
+    const isInput = c.tagName === "INPUT";
+    const g = el("g", { opacity: c.disabled ? 0.5 : 1 });
+    g.appendChild(el("rect", { x, y, width: r.width, height: r.height, rx: 4 * scale, fill: "#ffffff", stroke: "#c8c8c8" }));
+    const label = isInput ? c.value || c.placeholder : c.textContent;
+    g.appendChild(el("text", {
+      x: isInput ? x + 8 * scale : x + r.width / 2,
+      y: y + r.height / 2,
+      "text-anchor": isInput ? "start" : "middle",
+      "dominant-baseline": "central",
+      "font-size": 12 * scale,
+      fill: isInput && !c.value ? "#757575" : "#333333",
+    }, label));
+    toolbar.appendChild(g);
+  }
+  svg.appendChild(toolbar);
+  return new XMLSerializer().serializeToString(svg);
+}
+
+async function save(name) {
+  const response = await fetch("/save?name=" + encodeURIComponent(name), { method: "POST", body: exportSvg() });
+  $("log").textContent = response.ok ? "Saved " + name : "Save failed: " + (await response.text());
+  return response.ok;
+}
+
+window.harness = { mount, search, click, exportSvg, save, get visual() { return visual; } };
+
+$("mount").onclick = () => {
+  let objects = {};
+  try { objects = JSON.parse($("settings").value || "{}"); } catch (e) { $("log").textContent = "Settings JSON: " + e.message; }
+  mount({ width: +$("w").value, height: +$("h").value, objects });
+};
+$("q").oninput = (e) => search(e.target.value);
+$("save").onclick = () => save("harness.svg");
+
+mount();
+$("status").textContent = "ready";
+window.__ready = true;
+</script>
+</body>
+</html>

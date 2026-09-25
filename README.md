@@ -20,6 +20,34 @@ A **free and open-source vertical organization chart** for Power BI. Give it a s
 
 No license fees, no per-user pricing, no data leaving your report.
 
+## 🧭 What is an org chart?
+
+<p align="center">
+  <img src="docs/images/what-is-an-org-chart.en.svg" alt="A table of employees and their managers becomes an org chart: each card is a person and each line means 'reports to'" width="100%">
+</p>
+
+An **org chart** (organizational chart) is a diagram that shows **who reports to whom** in a company: the top person, their direct reports, the reports of those, and so on. All you need to draw one is a table with **one row per person** and the **ID of their manager**.
+
+## 📸 See it in action
+
+Every picture below was rendered by the real visual from [`sample/sample-data.csv`](sample/sample-data.csv) — fictional people only.
+
+**Overview** — three levels open; the `+2`, `+3`… buttons expand each team, and card colors come from your data.
+
+<p align="center"><img src="docs/images/full-tree.svg" alt="Org Tree overview with three levels open and colored cards" width="100%"></p>
+
+**Search shows the reporting line** — type an ID or a name and see the person and every manager above them, up to the top.
+
+<p align="center"><img src="docs/images/search-reporting-line.svg" alt="Searching for a person shows the chain of managers up to the CEO" width="70%"></p>
+
+**Expand all keeps the filter** — every card in the line opens to show its reports, and the searched person shows their whole team. *Export team* and *Copy team* then hand you that list.
+
+<p align="center"><img src="docs/images/search-expand-all.svg" alt="Expand all while searching, showing the reporting line and the team below the searched person" width="100%"></p>
+
+**Make it yours** — avatar on top, curved connectors with dots, rounder cards, colors and sizes, all from *Format visual*.
+
+<p align="center"><img src="docs/images/customized.svg" alt="Org Tree customized with avatars on top and curved connectors" width="100%"></p>
+
 ## ✨ Features
 
 | | |
@@ -110,6 +138,8 @@ npm install
 npm start          # developer visual served to Power BI
 npm run package    # creates dist/*.pbiviz
 ```
+
+Want to try changes without Power BI *or* Node? Run `python dev/server.py` and open `http://localhost:8765/dev/harness.html`: it runs the real `src/visual.ts` in a browser tab with a stand-in Power BI host (TypeScript, Less and D3 load from a CDN). It renders `sample/sample-data.csv`, and *Save SVG* regenerates the pictures in `docs/images` — this is how they were made. `python dev/make_explainer.py` redraws the "What is an org chart?" pictures.
 
 Don't want to install Node? Every push runs the **Build visual** GitHub Action and uploads the `.pbiviz` as an artifact; pushing a tag like `v1.0.0` publishes it as a release.
 

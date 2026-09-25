@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 440" width="1000" height="440" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" role="img" aria-label="O que é um organograma?">
+<title>O que é um organograma?</title>
+<rect width="1000" height="440" rx="16" fill="#ffffff" stroke="#D9E0E7"/>
+<text x="40" y="56" font-size="30" font-weight="700" fill="#0F4C81">O que é um organograma?</text>
+<text x="40" y="86" font-size="16" fill="#52606D">Um diagrama que mostra quem responde para quem em uma organização.</text>
+<rect x="40" y="112" width="340" height="270" rx="12" fill="#F5F7FA" stroke="#D9E0E7"/>
+<text x="60" y="142" font-size="14" font-weight="700" fill="#0F4C81">1. Seus dados</text>
+<rect x="60" y="156" width="300" height="30" rx="6" fill="#0F4C81"/>
+<text x="74" y="176" font-size="13" font-weight="600" fill="#fff">Colaborador</text>
+<text x="214" y="176" font-size="13" font-weight="600" fill="#fff">Gestor</text>
+<rect x="60" y="186" width="300" height="38" fill="#ffffff"/>
+<text x="74" y="210" font-size="13" fill="#1F2933">Alice Prado</text>
+<text x="214" y="210" font-size="12" font-style="italic" fill="#52606D">(sem gestor)</text>
+<rect x="60" y="224" width="300" height="38" fill="#EEF2F6"/>
+<text x="74" y="248" font-size="13" fill="#1F2933">Bruno Lima</text>
+<text x="214" y="248" font-size="13" fill="#1F2933">Alice Prado</text>
+<rect x="60" y="262" width="300" height="38" fill="#ffffff"/>
+<text x="74" y="286" font-size="13" fill="#1F2933">Carla Souza</text>
+<text x="214" y="286" font-size="13" fill="#1F2933">Alice Prado</text>
+<rect x="60" y="300" width="300" height="38" fill="#EEF2F6"/>
+<text x="74" y="324" font-size="13" fill="#1F2933">Diego Rocha</text>
+<text x="214" y="324" font-size="13" fill="#1F2933">Bruno Lima</text>
+<rect x="60" y="338" width="300" height="38" fill="#ffffff"/>
+<text x="74" y="362" font-size="13" fill="#1F2933">Elisa Moraes</text>
+<text x="214" y="362" font-size="13" fill="#1F2933">Bruno Lima</text>
+<path d="M392 250 H442" stroke="#0F4C81" stroke-width="3" stroke-linecap="round"/>
+<path d="M432 240 L444 250 L432 260" fill="none" stroke="#0F4C81" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="417" y="276" text-anchor="middle" font-size="11" fill="#52606D">O Org Tree</text>
+<text x="417" y="290" text-anchor="middle" font-size="11" fill="#52606D">desenha</text>
+<rect x="456" y="112" width="504" height="270" rx="12" fill="#F5F7FA" stroke="#D9E0E7"/>
+<text x="476" y="142" font-size="14" font-weight="700" fill="#0F4C81">2. O organograma</text>
+<path d="M718 196 V214 H634 V232" fill="none" stroke="#9AA5B1" stroke-width="1.6"/>
+<path d="M718 196 V214 H832 V232" fill="none" stroke="#9AA5B1" stroke-width="1.6"/>
+<path d="M634 278 V296 H556 V314" fill="none" stroke="#9AA5B1" stroke-width="1.6"/>
+<path d="M634 278 V296 H712 V314" fill="none" stroke="#9AA5B1" stroke-width="1.6"/>
+<rect x="656" y="150" width="124" height="46" rx="8" fill="#0F4C81" stroke="#B8C4D0"/><circle cx="680" cy="173" r="14" fill="#E1E8F0"/><text x="680" y="178" text-anchor="middle" font-size="11" font-weight="600" fill="#3E4C59">AP</text><text x="702" y="171" font-size="12" font-weight="600" fill="#ffffff">Alice Prado</text><text x="702" y="185" font-size="10" fill="#ffffff" fill-opacity="0.8">CEO</text>
+<rect x="572" y="232" width="124" height="46" rx="8" fill="#64C8C8" stroke="#B8C4D0"/><circle cx="596" cy="255" r="14" fill="#E1E8F0"/><text x="596" y="260" text-anchor="middle" font-size="11" font-weight="600" fill="#3E4C59">BL</text><text x="618" y="253" font-size="12" font-weight="600" fill="#1F2933">Bruno Lima</text><text x="618" y="267" font-size="10" fill="#1F2933" fill-opacity="0.8">VP Operations</text>
+<rect x="770" y="232" width="124" height="46" rx="8" fill="#64C8C8" stroke="#B8C4D0"/><circle cx="794" cy="255" r="14" fill="#E1E8F0"/><text x="794" y="260" text-anchor="middle" font-size="11" font-weight="600" fill="#3E4C59">CS</text><text x="816" y="253" font-size="12" font-weight="600" fill="#1F2933">Carla Souza</text><text x="816" y="267" font-size="10" fill="#1F2933" fill-opacity="0.8">VP Finance</text>
+<rect x="494" y="314" width="124" height="46" rx="8" fill="#ffffff" stroke="#B8C4D0"/><circle cx="518" cy="337" r="14" fill="#E1E8F0"/><text x="518" y="342" text-anchor="middle" font-size="11" font-weight="600" fill="#3E4C59">DR</text><text x="540" y="335" font-size="12" font-weight="600" fill="#1F2933">Diego Rocha</text><text x="540" y="349" font-size="10" fill="#1F2933" fill-opacity="0.8">Manager</text>
+<rect x="650" y="314" width="124" height="46" rx="8" fill="#ffffff" stroke="#B8C4D0"/><circle cx="674" cy="337" r="14" fill="#E1E8F0"/><text x="674" y="342" text-anchor="middle" font-size="11" font-weight="600" fill="#3E4C59">EM</text><text x="696" y="335" font-size="12" font-weight="600" fill="#1F2933">Elisa Moraes</text><text x="696" y="349" font-size="10" fill="#1F2933" fill-opacity="0.8">Manager</text>
+<path d="M782 173 H806" stroke="#D97706" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M790 167 L782 173 L790 179" fill="none" stroke="#D97706" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="812" y="177" font-size="12" font-style="italic" fill="#B45309">o topo não tem gestor</text>
+<text x="600" y="210" text-anchor="end" font-size="12" font-style="italic" fill="#B45309">Bruno responde para Alice</text>
+<text x="708" y="372" text-anchor="middle" font-size="12" fill="#52606D">Cada card é uma pessoa  ·  cada linha significa “responde para”</text>
+<text x="40" y="414" font-size="13" fill="#52606D">Uma linha por pessoa é tudo o que você precisa. Este exemplo usa pessoas fictícias.</text>
+</svg>

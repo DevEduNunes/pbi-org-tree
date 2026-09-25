@@ -20,6 +20,34 @@ Um **organograma vertical gratuito e open source** para Power BI. Entregue uma t
 
 Sem licença paga, sem cobrança por usuário e sem os dados saírem do seu relatório.
 
+## 🧭 O que é um organograma?
+
+<p align="center">
+  <img src="docs/images/what-is-an-org-chart.pt-BR.svg" alt="Uma tabela de colaboradores e seus gestores vira um organograma: cada card é uma pessoa e cada linha significa 'responde para'" width="100%">
+</p>
+
+Um **organograma** é um diagrama que mostra **quem responde para quem** em uma empresa: a pessoa do topo, seus subordinados diretos, os subordinados desses, e assim por diante. Para desenhar um, basta uma tabela com **uma linha por pessoa** e o **ID do gestor dela**.
+
+## 📸 Veja funcionando
+
+Todas as imagens abaixo foram desenhadas pelo visual de verdade a partir de [`sample/sample-data.csv`](sample/sample-data.csv) — só pessoas fictícias.
+
+**Visão geral** — três níveis abertos; os botões `+2`, `+3`… expandem cada equipe, e as cores dos cards vêm dos seus dados.
+
+<p align="center"><img src="docs/images/full-tree.svg" alt="Visão geral do Org Tree com três níveis abertos e cards coloridos" width="100%"></p>
+
+**A busca mostra a linha hierárquica** — digite um ID ou nome e veja a pessoa e todos os gestores acima dela, até o topo.
+
+<p align="center"><img src="docs/images/search-reporting-line.svg" alt="Buscar uma pessoa mostra a cadeia de gestores até o CEO" width="70%"></p>
+
+**O Expand all mantém o filtro** — cada card da linha abre e mostra seus subordinados, e a pessoa pesquisada mostra a equipe inteira. O *Export team* e o *Copy team* entregam essa lista.
+
+<p align="center"><img src="docs/images/search-expand-all.svg" alt="Expand all durante a busca, mostrando a linha hierárquica e a equipe abaixo da pessoa pesquisada" width="100%"></p>
+
+**Deixe do seu jeito** — avatar no topo, conectores curvos com pontos, cards mais arredondados, cores e tamanhos, tudo em *Formatar visual*.
+
+<p align="center"><img src="docs/images/customized.svg" alt="Org Tree personalizado com avatares no topo e conectores curvos" width="100%"></p>
+
 ## ✨ Recursos
 
 | | |
@@ -110,6 +138,8 @@ npm install
 npm start          # visual de desenvolvimento servido ao Power BI
 npm run package    # gera dist/*.pbiviz
 ```
+
+Quer testar mudanças sem o Power BI *nem* o Node? Rode `python dev/server.py` e abra `http://localhost:8765/dev/harness.html`: ele executa o `src/visual.ts` de verdade numa aba do navegador, com um Power BI simulado (TypeScript, Less e D3 vêm de uma CDN). Ele desenha o `sample/sample-data.csv`, e o botão *Save SVG* regera as imagens de `docs/images` — foi assim que elas foram feitas. `python dev/make_explainer.py` redesenha as imagens de "O que é um organograma?".
 
 Não quer instalar o Node? Cada push roda o **Build visual** no GitHub Actions e guarda o `.pbiviz` como artefato; enviar uma tag como `v1.0.0` publica o arquivo como release.
 
